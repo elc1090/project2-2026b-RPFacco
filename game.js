@@ -3,8 +3,8 @@ import kaplay from "https://unpkg.com/kaplay@3001.0.19/dist/kaplay.mjs";
 kaplay({
     canvas: document.getElementById("game"),
     width: 1200,
-    height: 150,
-    letterbox: true,
+    height: 300,
+    crisp: true,
     background: "#ffffff",
 });
 
@@ -96,9 +96,26 @@ const bg2 = add([
     pos(GROUND_WIDTH, GROUND_Y),
 ]);
 
+const dino = add([
+    sprite("dino"),
+    pos(50, GROUND_Y - 40),
+])
+dino.play("run")
+
 onUpdate(() => {
     bg1.move(-SPEED, 0);
     bg2.move(-SPEED, 0);
     if (bg1.pos.x <= -GROUND_WIDTH) bg1.pos.x = GROUND_WIDTH;
     if (bg2.pos.x <= -GROUND_WIDTH) bg2.pos.x = GROUND_WIDTH;
 });
+
+function spawnCloud() {
+    add([
+        sprite("cloud"),
+        pos(width(), rand(60, 110)),
+        move(LEFT, 150),
+        offscreen({ destroy: true }),
+    ]);
+    wait(rand(1.5, 4), spawnCloud);
+}
+spawnCloud();
