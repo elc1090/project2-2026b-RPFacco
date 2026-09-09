@@ -107,7 +107,13 @@ const CACTUS_MAX_DELAY = 3.5;
 
 const GAMEOVER_GAP = 24;
 
+const SCORE_RATE = 10;
+const SCORE_DIGITS = 5;
+const SCORE_DIGIT_WIDTH = 10;
+const SCORE_MARGIN = 10;
+
 let gameOver = false;
+let score = 0;
 let cloudTimer = null;
 let cactusTimer = null;
 
@@ -154,6 +160,25 @@ dino.onGround(() => {
     dino.play("run");
 });
 dino.onCollide("cactus", endGame);
+
+const scoreDigits = [];
+for (let i = 0; i < SCORE_DIGITS; i++) {
+    scoreDigits.push(add([
+        sprite("numbers", { frame: 0 }),
+        pos(width() - SCORE_MARGIN - (SCORE_DIGITS - i) * SCORE_DIGIT_WIDTH, SCORE_MARGIN),
+        z(1),
+    ]));
+}
+
+function drawScore() {
+    const digits = Math.floor(score)
+        .toString()
+        .padStart(SCORE_DIGITS, "0")
+        .slice(-SCORE_DIGITS);
+    scoreDigits.forEach((digit, i) => {
+        digit.frame = Number(digits[i]);
+    });
+}
 
 function spawnCloud() {
     add([
@@ -211,12 +236,16 @@ function restart() {
     dino.vel = vec2(0, 0);
     dino.play("run");
     gameOver = false;
+    score = 0;
+    drawScore();
     spawnCloud();
     spawnCactus();
 }
 
 onUpdate(() => {
     if (gameOver) return;
+    score += dt() * SCORE_RATE;
+    drawScore();
     bg1.move(-SPEED, 0);
     bg2.move(-SPEED, 0);
     if (bg1.pos.x <= -GROUND_WIDTH) bg1.pos.x = GROUND_WIDTH;
