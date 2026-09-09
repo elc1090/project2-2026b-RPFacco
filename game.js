@@ -83,39 +83,53 @@ loadSpriteAtlas("sprite-sheet.png", {
     },
 });
 
+const FLOOR_Y = height() - 24;
+const FLOOR_THICKNESS = 20;
+const GROUND_LINE_OFFSET = 5;
 const GROUND_WIDTH = 1200;
-const GROUND_Y = height() - 24;
+const DINO_X = 50;
+
 const SPEED = 200;
-setGravity(600)
+const GRAVITY = 600;
+const JUMP_FORCE = 300;
+
+const CLOUD_SPEED = 150;
+const CLOUD_MIN_Y = 60;
+const CLOUD_MAX_Y = 110;
+const CLOUD_MIN_DELAY = 1.5;
+const CLOUD_MAX_DELAY = 4;
+
+setGravity(GRAVITY);
 
 const bg1 = add([
     sprite("ground"),
-    pos(0, GROUND_Y),
+    pos(0, FLOOR_Y - GROUND_LINE_OFFSET),
 ]);
 const bg2 = add([
     sprite("ground"),
-    pos(GROUND_WIDTH, GROUND_Y),
+    pos(GROUND_WIDTH, FLOOR_Y - GROUND_LINE_OFFSET),
 ]);
 
-const dino = add([
-    sprite("dino"),
-    pos(50, GROUND_Y - 40),
-    area(),
-    body(),
-])
-
 add([
-    rect(width(), 20),
-    pos(0, GROUND_Y + 5),
+    rect(width(), FLOOR_THICKNESS),
+    pos(0, FLOOR_Y),
     area(),
     body({ isStatic: true }),
     opacity(0),
 ]);
 
+const dino = add([
+    sprite("dino"),
+    anchor("botleft"),
+    pos(DINO_X, FLOOR_Y),
+    area(),
+    body(),
+]);
+
 dino.play("run");
 onClick(() => {
     if (!dino.isGrounded()) return;
-    dino.jump(300);
+    dino.jump(JUMP_FORCE);
     dino.play("jump");
 });
 dino.onGround(() => {
@@ -132,10 +146,10 @@ onUpdate(() => {
 function spawnCloud() {
     add([
         sprite("cloud"),
-        pos(width(), rand(60, 110)),
-        move(LEFT, 150),
+        pos(width(), rand(CLOUD_MIN_Y, CLOUD_MAX_Y)),
+        move(LEFT, CLOUD_SPEED),
         offscreen({ destroy: true }),
     ]);
-    wait(rand(1.5, 4), spawnCloud);
+    wait(rand(CLOUD_MIN_DELAY, CLOUD_MAX_DELAY), spawnCloud);
 }
 spawnCloud();
