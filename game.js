@@ -2,8 +2,10 @@ import kaplay from "https://unpkg.com/kaplay@3001.0.19/dist/kaplay.mjs";
 
 kaplay({
     canvas: document.getElementById("game"),
-    width: 1200,
-    height: 300,
+    width: 440,
+    height: 220,
+    letterbox: true,
+    pixelDensity: window.devicePixelRatio,
     crisp: true,
     background: "#ffffff",
 });
@@ -83,25 +85,25 @@ loadSpriteAtlas("sprite-sheet.png", {
     },
 });
 
-const FLOOR_Y = height() - 24;
+const FLOOR_Y = height() - 40;
 const FLOOR_THICKNESS = 20;
 const GROUND_LINE_OFFSET = 5;
 const GROUND_WIDTH = 1200;
 const DINO_X = 50;
 
-const SPEED = 200;
+const SPEED = 140;
 const GRAVITY = 600;
 const JUMP_FORCE = 300;
 
-const CLOUD_SPEED = 150;
-const CLOUD_MIN_Y = 40;
-const CLOUD_MAX_Y = 130;
-const CLOUD_MIN_DELAY = 1;
-const CLOUD_MAX_DELAY = 2;
+const CLOUD_SPEED = 60;
+const CLOUD_MIN_Y = 20;
+const CLOUD_MAX_Y = 80;
+const CLOUD_MIN_DELAY = 2;
+const CLOUD_MAX_DELAY = 4;
 
 const CACTUS_SPRITES = ["cactus-small", "cactus-large"];
-const CACTUS_MIN_DELAY = 2.5;
-const CACTUS_MAX_DELAY = 4;
+const CACTUS_MIN_DELAY = 1.8;
+const CACTUS_MAX_DELAY = 3.5;
 
 const GAMEOVER_GAP = 24;
 
@@ -132,8 +134,9 @@ const dino = add([
     sprite("dino"),
     anchor("botleft"),
     pos(DINO_X, FLOOR_Y),
-    area({ scale: vec2(0.5, 0.8) }),
+    area({ scale: vec2(0.5, 0.8), offset: vec2(10, 0) }),
     body(),
+    z(1),
 ]);
 
 dino.play("run");
