@@ -86,6 +86,7 @@ loadSpriteAtlas("sprite-sheet.png", {
 const GROUND_WIDTH = 1200;
 const GROUND_Y = height() - 24;
 const SPEED = 200;
+setGravity(600)
 
 const bg1 = add([
     sprite("ground"),
@@ -99,8 +100,27 @@ const bg2 = add([
 const dino = add([
     sprite("dino"),
     pos(50, GROUND_Y - 40),
+    area(),
+    body(),
 ])
-dino.play("run")
+
+add([
+    rect(width(), 20),
+    pos(0, GROUND_Y + 5),
+    area(),
+    body({ isStatic: true }),
+    opacity(0),
+]);
+
+dino.play("run");
+onClick(() => {
+    if (!dino.isGrounded()) return;
+    dino.jump(300);
+    dino.play("jump");
+});
+dino.onGround(() => {
+    dino.play("run");
+});
 
 onUpdate(() => {
     bg1.move(-SPEED, 0);
