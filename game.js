@@ -94,10 +94,14 @@ const GRAVITY = 600;
 const JUMP_FORCE = 300;
 
 const CLOUD_SPEED = 150;
-const CLOUD_MIN_Y = 60;
-const CLOUD_MAX_Y = 110;
-const CLOUD_MIN_DELAY = 1.5;
-const CLOUD_MAX_DELAY = 4;
+const CLOUD_MIN_Y = 40;
+const CLOUD_MAX_Y = 130;
+const CLOUD_MIN_DELAY = 1;
+const CLOUD_MAX_DELAY = 2;
+
+const CACTUS_SPRITES = ["cactus-small", "cactus-large"];
+const CACTUS_MIN_DELAY = 2.5;
+const CACTUS_MAX_DELAY = 4;
 
 setGravity(GRAVITY);
 
@@ -136,13 +140,6 @@ dino.onGround(() => {
     dino.play("run");
 });
 
-onUpdate(() => {
-    bg1.move(-SPEED, 0);
-    bg2.move(-SPEED, 0);
-    if (bg1.pos.x <= -GROUND_WIDTH) bg1.pos.x = GROUND_WIDTH;
-    if (bg2.pos.x <= -GROUND_WIDTH) bg2.pos.x = GROUND_WIDTH;
-});
-
 function spawnCloud() {
     add([
         sprite("cloud"),
@@ -153,3 +150,22 @@ function spawnCloud() {
     wait(rand(CLOUD_MIN_DELAY, CLOUD_MAX_DELAY), spawnCloud);
 }
 spawnCloud();
+
+function spawnCactus() {
+    add([
+        sprite(choose(CACTUS_SPRITES)),
+        anchor("botleft"),
+        pos(width(), FLOOR_Y),
+        move(LEFT, SPEED),
+        offscreen({ destroy: true }),
+    ]);
+    wait(rand(CACTUS_MIN_DELAY, CACTUS_MAX_DELAY), spawnCactus);
+}
+spawnCactus();
+
+onUpdate(() => {
+    bg1.move(-SPEED, 0);
+    bg2.move(-SPEED, 0);
+    if (bg1.pos.x <= -GROUND_WIDTH) bg1.pos.x = GROUND_WIDTH;
+    if (bg2.pos.x <= -GROUND_WIDTH) bg2.pos.x = GROUND_WIDTH;
+});
