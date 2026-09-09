@@ -103,6 +103,12 @@ const CACTUS_SPRITES = ["cactus-small", "cactus-large"];
 const CACTUS_MIN_DELAY = 2.5;
 const CACTUS_MAX_DELAY = 4;
 
+const GAMEOVER_GAP = 24;
+
+let gameOver = false;
+let cloudTimer = null;
+let cactusTimer = null;
+
 setGravity(GRAVITY);
 
 const bg1 = add([
@@ -126,19 +132,25 @@ const dino = add([
     sprite("dino"),
     anchor("botleft"),
     pos(DINO_X, FLOOR_Y),
-    area(),
+    area({ scale: vec2(0.5, 0.8) }),
     body(),
 ]);
 
 dino.play("run");
 onClick(() => {
+    if (gameOver) {
+        restart();
+        return;
+    }
     if (!dino.isGrounded()) return;
     dino.jump(JUMP_FORCE);
     dino.play("jump");
 });
 dino.onGround(() => {
+    if (gameOver) return;
     dino.play("run");
 });
+dino.onCollide("cactus", endGame);
 
 function spawnCloud() {
     add([
@@ -146,8 +158,9 @@ function spawnCloud() {
         pos(width(), rand(CLOUD_MIN_Y, CLOUD_MAX_Y)),
         move(LEFT, CLOUD_SPEED),
         offscreen({ destroy: true }),
+        "cloud",
     ]);
-    wait(rand(CLOUD_MIN_DELAY, CLOUD_MAX_DELAY), spawnCloud);
+    cloudTimer = wait(rand(CLOUD_MIN_DELAY, CLOUD_MAX_DELAY), spawnCloud);
 }
 spawnCloud();
 
@@ -156,14 +169,51 @@ function spawnCactus() {
         sprite(choose(CACTUS_SPRITES)),
         anchor("botleft"),
         pos(width(), FLOOR_Y),
+        area(),
         move(LEFT, SPEED),
         offscreen({ destroy: true }),
+        "cactus",
     ]);
-    wait(rand(CACTUS_MIN_DELAY, CACTUS_MAX_DELAY), spawnCactus);
+    cactusTimer = wait(rand(CACTUS_MIN_DELAY, CACTUS_MAX_DELAY), spawnCactus);
 }
 spawnCactus();
 
+function endGame() {
+    if (gameOver) return;
+    gameOver = true;
+    cloudTimer.cancel();
+    cactusTimer.cancel();
+    dino.play("dead");
+    get("cactus").forEach((c) => c.unuse("move"));
+    get("cloud").forEach((c) => c.unuse("move"));
+    add([
+        sprite("game-over"),
+        anchor("center"),
+        pos(width() / 2, height() / 2 - GAMEOVER_GAP),
+        "gameover-ui",
+    ]);
+    add([
+        sprite("restart"),
+        anchor("center"),
+        pos(width() / 2, height() / 2 + GAMEOVER_GAP),
+        "gameover-ui",
+    ]);
+}
+
+function restart() {
+    destroyAll("cactus");
+    destroyAll("cloud");
+    destroyAll("gameover-ui");
+    dino.pos = vec2(DINO_X, FLOOR_Y);
+    dino.vel = vec2(0, 0);
+    dino.play("run");
+    gameOver = false;
+    spawnCloud();
+    spawnCactus();
+}
+
 onUpdate(() => {
+    if (gameOver) return;
     bg1.move(-SPEED, 0);
     bg2.move(-SPEED, 0);
     if (bg1.pos.x <= -GROUND_WIDTH) bg1.pos.x = GROUND_WIDTH;
