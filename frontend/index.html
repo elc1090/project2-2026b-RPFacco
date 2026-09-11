@@ -7,9 +7,19 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
+  <main id="app">
+    <input id="player-name" type="text" maxlength="20" placeholder="Seu nome" autocomplete="nickname">
+
     <div id="game-box">
       <canvas id="game"></canvas>
     </div>
-    <script type="module" src="game.js"></script>
+
+    <section id="ranking">
+      <h2>Ranking</h2>
+      <p id="ranking-status"></p>
+      <ol id="ranking-list"></ol>
+    </section>
+  </main>
+  <script type="module" src="game.js"></script>
   </body>
 </html>
