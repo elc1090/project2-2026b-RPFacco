@@ -1,4 +1,5 @@
 import kaplay from "https://unpkg.com/kaplay@3001.0.19/dist/kaplay.mjs";
+import { showRanking, submitScore } from "./ranking.js";
 
 kaplay({
     canvas: document.getElementById("game"),
@@ -209,6 +210,7 @@ spawnCactus();
 function endGame() {
     if (gameOver) return;
     gameOver = true;
+    submitScore(score);
     cloudTimer.cancel();
     cactusTimer.cancel();
     dino.play("dead");
@@ -251,3 +253,5 @@ onUpdate(() => {
     if (bg1.pos.x <= -GROUND_WIDTH) bg1.pos.x = GROUND_WIDTH;
     if (bg2.pos.x <= -GROUND_WIDTH) bg2.pos.x = GROUND_WIDTH;
 });
+
+showRanking();
