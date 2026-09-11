@@ -39,8 +39,31 @@ def get_ranking():
     ).fetchall()
     conn.close()
 
-    ranking = [dict(rows for row in rows)]
+    ranking = [dict(row) for row in rows]
     return jsonify(ranking)
 
+@app.post("/api/ranking")
+def post_score():
+    data = request.get_json(silent=True) or {}
+
+    name = str(data.get("name") or "").strip()
+    score = data.get("score")
+
+    if not name or len(name) > 20:
+        return jsonify({"error": "O nome deve ter entre 1 e 20 caracteres"}), 400
+
+    if type(score) is not int or score < 0:
+        return jsonify({"error": "O score deve ser um inteiro maior ou igual a zero"}), 400
+
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO scores (name, score) VALUES (?, ?)",
+        (name, score),
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify({"name": name, "score": score}), 201
+
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
