@@ -2,12 +2,14 @@ import os
 import sqlite3
 
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "ranking.db")
 SCHEMA_PATH = os.path.join(BASE_DIR, "schema.sql")
 
 app = Flask(__name__)
+CORS(app)
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
