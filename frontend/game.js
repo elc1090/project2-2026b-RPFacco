@@ -1,5 +1,5 @@
 import kaplay from "https://unpkg.com/kaplay@3001.0.19/dist/kaplay.mjs";
-import { showRanking, submitScore } from "./ranking.js";
+import { showRanking, offerSave } from "./ranking.js";
 
 kaplay({
     canvas: document.getElementById("game"),
@@ -114,9 +114,15 @@ const SCORE_DIGIT_WIDTH = 10;
 const SCORE_MARGIN = 10;
 
 let gameOver = false;
+let running = false;
 let score = 0;
 let cloudTimer = null;
 let cactusTimer = null;
+
+const startOverlay = document.getElementById("start-overlay");
+const startButton = document.getElementById("start-button");
+const gameoverPanel = document.getElementById("gameover-panel");
+const playAgainButton = document.getElementById("play-again");
 
 setGravity(GRAVITY);
 
@@ -146,18 +152,15 @@ const dino = add([
     z(1),
 ]);
 
-dino.play("run");
+dino.play("idle");
 onClick(() => {
-    if (gameOver) {
-        restart();
-        return;
-    }
+    if (!running) return;
     if (!dino.isGrounded()) return;
     dino.jump(JUMP_FORCE);
     dino.play("jump");
 });
 dino.onGround(() => {
-    if (gameOver) return;
+    if (!running) return;
     dino.play("run");
 });
 dino.onCollide("cactus", endGame);
@@ -191,7 +194,6 @@ function spawnCloud() {
     ]);
     cloudTimer = wait(rand(CLOUD_MIN_DELAY, CLOUD_MAX_DELAY), spawnCloud);
 }
-spawnCloud();
 
 function spawnCactus() {
     add([
@@ -205,12 +207,11 @@ function spawnCactus() {
     ]);
     cactusTimer = wait(rand(CACTUS_MIN_DELAY, CACTUS_MAX_DELAY), spawnCactus);
 }
-spawnCactus();
 
 function endGame() {
     if (gameOver) return;
     gameOver = true;
-    submitScore(score);
+    running = false;
     cloudTimer.cancel();
     cactusTimer.cancel();
     dino.play("dead");
@@ -222,15 +223,20 @@ function endGame() {
         pos(width() / 2, height() / 2 - GAMEOVER_GAP),
         "gameover-ui",
     ]);
-    add([
+    const restartButton = add([
         sprite("restart"),
         anchor("center"),
         pos(width() / 2, height() / 2 + GAMEOVER_GAP),
+        area(),
         "gameover-ui",
     ]);
+    restartButton.onClick(startGame);
+
+    gameoverPanel.hidden = false;
+    offerSave(score);
 }
 
-function restart() {
+function startGame() {
     destroyAll("cactus");
     destroyAll("cloud");
     destroyAll("gameover-ui");
@@ -238,14 +244,20 @@ function restart() {
     dino.vel = vec2(0, 0);
     dino.play("run");
     gameOver = false;
+    running = true;
     score = 0;
     drawScore();
+    startOverlay.hidden = true;
+    gameoverPanel.hidden = true;
     spawnCloud();
     spawnCactus();
 }
 
+startButton.addEventListener("click", startGame);
+playAgainButton.addEventListener("click", startGame);
+
 onUpdate(() => {
-    if (gameOver) return;
+    if (!running) return;
     score += dt() * SCORE_RATE;
     drawScore();
     bg1.move(-SPEED, 0);

@@ -24,6 +24,7 @@ body {
   aspect-ratio: 440 / 220;
   background: #ffffff;
   outline: 2px solid #535353;
+  position: relative;
 }
 
 #game {
@@ -60,4 +61,42 @@ body {
 #ranking-list {
   margin: 0;
   padding-left: 24px;
+}
+
+#start-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+#gameover-panel {
+  display: flex;
+  gap: 8px;
+}
+
+#gameover-panel button {
+  flex: 1;
+}
+
+button {
+  min-height: 44px;
+  padding: 10px 16px;
+  font-family: inherit;
+  font-size: 16px;
+  color: inherit;
+  background: #ffffff;
+  border: 2px solid #535353;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+[hidden] {
+  display: none !important;
 }

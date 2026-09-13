@@ -6,6 +6,9 @@ const API_URL = LOCAL_HOSTS.includes(location.hostname)
 const nameInput = document.getElementById("player-name");
 const rankingList = document.getElementById("ranking-list");
 const rankingStatus = document.getElementById("ranking-status");
+const saveButton = document.getElementById("save-score");
+
+let pendingScore = null;
 
 nameInput.value = localStorage.getItem("playerName") ?? "";
 nameInput.addEventListener("input", () => {
@@ -44,16 +47,37 @@ export async function showRanking() {
     }
 }
 
-export async function submitScore(score) {
+async function savePendingScore() {
+    if (pendingScore === null) return;
+
     const name = nameInput.value.trim();
     if (!name) {
-        rankingStatus.textContent = "Digite seu nome para entrar no ranking";
+        rankingStatus.textContent = "Digite seu nome e toque em Salvar";
+        nameInput.focus();
         return;
     }
+
+    saveButton.disabled = true;
+    const saved = pendingScore;
     try {
-        await saveScore(name, Math.floor(score));
+        await saveScore(name, saved);
+        pendingScore = null;
         await showRanking();
+        rankingStatus.textContent = `Score ${saved} salvo!`;
     } catch (err) {
+        saveButton.disabled = false;
         rankingStatus.textContent = `Não foi possível salvar: ${err.message}`;
+    }
+}
+
+saveButton.addEventListener("click", savePendingScore);
+
+export async function offerSave(score) {
+    pendingScore = Math.floor(score);
+    saveButton.disabled = false;
+    if (nameInput.value.trim()) {
+        await savePendingScore();
+    } else {
+        rankingStatus.textContent = "Digite seu nome e toque em Salvar";
     }
 }
