@@ -9,7 +9,7 @@ DB_PATH = os.path.join(BASE_DIR, "ranking.db")
 SCHEMA_PATH = os.path.join(BASE_DIR, "schema.sql")
 
 ALLOWED_ORIGINS = [
-    "https://placeholder.netlify.app",
+    "https://rpfacco-dino-game.netlify.app",
     "http://localhost:5500",
     "http://127.0.0.1:5500",
     "http://localhost:63342",

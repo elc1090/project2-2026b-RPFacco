@@ -1,7 +1,7 @@
 const LOCAL_HOSTS = ["localhost", "127.0.0.1"];
 const API_URL = LOCAL_HOSTS.includes(location.hostname)
     ? "http://127.0.0.1:5000"
-    : "https://placeholder.pythonanywhere.com";
+    : "https://rpfacco.pythonanywhere.com";
 
 const nameInput = document.getElementById("player-name");
 const rankingList = document.getElementById("ranking-list");
