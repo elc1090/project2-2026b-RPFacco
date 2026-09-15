@@ -92,7 +92,9 @@ const GROUND_LINE_OFFSET = 5;
 const GROUND_WIDTH = 1200;
 const DINO_X = 50;
 
-const SPEED = 140;
+const BASE_SPEED = 140;
+const MAX_SPEED = 300;
+const ACCELERATION = 10;
 const GRAVITY = 600;
 const JUMP_FORCE = 300;
 
@@ -116,6 +118,7 @@ const SCORE_MARGIN = 10;
 let gameOver = false;
 let running = false;
 let score = 0;
+let speed = BASE_SPEED;
 let cloudTimer = null;
 let cactusTimer = null;
 
@@ -201,11 +204,11 @@ function spawnCactus() {
         anchor("botleft"),
         pos(width(), FLOOR_Y),
         area(),
-        move(LEFT, SPEED),
         offscreen({ destroy: true }),
         "cactus",
     ]);
-    cactusTimer = wait(rand(CACTUS_MIN_DELAY, CACTUS_MAX_DELAY), spawnCactus);
+    const delay = rand(CACTUS_MIN_DELAY, CACTUS_MAX_DELAY) * BASE_SPEED / speed;
+    cactusTimer = wait(delay, spawnCactus);
 }
 
 function endGame() {
@@ -215,7 +218,6 @@ function endGame() {
     cloudTimer.cancel();
     cactusTimer.cancel();
     dino.play("dead");
-    get("cactus").forEach((c) => c.unuse("move"));
     get("cloud").forEach((c) => c.unuse("move"));
     add([
         sprite("game-over"),
@@ -246,6 +248,7 @@ function startGame() {
     gameOver = false;
     running = true;
     score = 0;
+    speed = BASE_SPEED;
     drawScore();
     startOverlay.hidden = true;
     gameoverPanel.hidden = true;
@@ -258,12 +261,14 @@ playAgainButton.addEventListener("click", startGame);
 
 onUpdate(() => {
     if (!running) return;
-    score += dt() * SCORE_RATE;
+    speed = Math.min(MAX_SPEED, speed + ACCELERATION * dt());
+    score += dt() * SCORE_RATE * speed / BASE_SPEED;
     drawScore();
-    bg1.move(-SPEED, 0);
-    bg2.move(-SPEED, 0);
-    if (bg1.pos.x <= -GROUND_WIDTH) bg1.pos.x = GROUND_WIDTH;
-    if (bg2.pos.x <= -GROUND_WIDTH) bg2.pos.x = GROUND_WIDTH;
+    bg1.move(-speed, 0);
+    bg2.move(-speed, 0);
+    if (bg1.pos.x <= -GROUND_WIDTH) bg1.pos.x += GROUND_WIDTH * 2;
+    if (bg2.pos.x <= -GROUND_WIDTH) bg2.pos.x += GROUND_WIDTH * 2;
+    get("cactus").forEach((c) => c.move(-speed, 0));
 });
 
 showRanking();
