@@ -21,11 +21,51 @@ Curso: Sistemas de Informação
 
 ### Processo
 
-Substitua este texto por uma descrição do processo de desenvolvimento **em primeira pessoa, sem ajuda de IA**, explicando e justificando suas escolhas, destacando o que já sabia ou não, como lidou com dúvidas ou dificuldades específicas, que adaptações foram necessárias, etc. Evite comentários genéricos como "pedi ajuda para IA e resolvi", dando preferência para expor detalhes específicos de um problema e sua solução.
+Comecei o desenvolvimento pelo frontend, escrito em JavaScript com o framework Kaplay. Segui um vídeo tutorial que mostrava como re-criar o jogo Flappy Bird usando Kaplay, adaptando o desenvolvimento para criar o Dino Game. Esse framework é muito bom para desenvolver jogos, pois existem funções prontas para serem utilizadas, como o `onGround`, que detecta quando uma entidade está tocando o chão. O processo de criação da lógica do jogo foi fácil e divertida, e não tive grandes dificuldades com isso.
+
+Após, comecei a desenvolver o backend, com o Python e o framework Flask. Também segui um vídeo tutorial que mostrava como configurar o Flask de maneira inicial, e depois disso utilizei ajuda de IA para me auxiliar com a sintaxe do Flask. Eu sabia que precisava de uma requisição `GET` e um `POST` para a criação do ranking, então trabalhei nisso, ao mesmo tempo criando o esquema do banco de dados.
+
+Para o banco de dados, escolhi SQLite. Descobri que o SQLite não precisa de servidor nenhum, o banco inteiro é um único arquivo, o `ranking.db`. Criei a tabela `scores` em um arquivo `schema.sql`, e o próprio Python executa esse arquivo quando o servidor sobe. Dessa forma, criei a consulta na requisição `GET` que monta o ranking dos 10 melhores jogadores.
 
 ### Trechos de código
 
-Indique pelo menos 3 trechos de código que você queira destacar para a turma (por exemplo, para explicar algo que aprendeu, para alertar sobre alguma dificuldade de compreensão, para mostrar uma curiosidade, etc).
+Como é feito a consulta no banco de dados pelo GET, com Flask:
+```python
+@app.get("/api/ranking")
+def get_ranking():
+    conn = get_db()
+    rows = conn.execute(
+        """
+        SELECT name, score
+        FROM scores
+        ORDER BY score DESC, id ASC
+        LIMIT 10
+        """
+    ).fetchall()
+    conn.close()
+
+    ranking = [dict(row) for row in rows]
+    return jsonify(ranking)
+```
+---
+
+Abaixo, a maneira certa e errada de salvar um score novo.
+
+```python
+# jeito certo
+conn.execute(
+    "INSERT INTO scores (name, score) VALUES (?, ?)",
+    (name, score),
+)
+conn.commit()
+```
+
+```python
+# jeito errado
+conn.execute(f"INSERT INTO scores (name, score) VALUES ('{name}', {score})")
+```
+Note os dois '?'. Em vez de eu grudar o nome dentro do texto do comando SQL, eu mando o comando de um lado e os valores do outro, e o banco trata o nome sempre como texto comum.
+
 
 ## Tecnologias
 
@@ -33,8 +73,8 @@ Indique pelo menos 3 trechos de código que você queira destacar para a turma (
 
 - Kaplay - **Frontend**
 - Python com Flask - **Backend**
-- Supabase - **Banco de dados**
-- Render e Netifly - **Hospedagem back e front**
+- SQLite - **Banco de dados**
+- PythonAnywhere e Netifly - **Hospedagem back e front**
 
 ### Ambiente de desenvolvimento
 
